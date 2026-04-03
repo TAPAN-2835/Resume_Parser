@@ -1,45 +1,99 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Github, Mail, Chrome, Linkedin } from 'lucide-react'
+import { Mail, CheckCircle2, AlertCircle, Loader2, Lock, User, KeyRound } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 
+type AuthView = 'login' | 'signup'
+
 export default function LoginPage() {
+  const router = useRouter()
+  const supabase = createClient()
+
+  // View state
+  const [view, setView] = useState<AuthView>('login')
+
+  // Form states
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  // UI states
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const supabase = createClient()
-  const router = useRouter()
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
 
-  const handleEmailLogin = async (e: React.FormEvent) => {
+  const isValidEmail = useMemo(() => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }, [email])
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
+    
+    if (!isValidEmail) return setError('Please enter a valid email address')
+    if (password.length < 6) return setError('Password must be at least 6 characters')
+
     setIsLoading(true)
-    setError(null)
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) setError(error.message)
-    else router.push('/dashboard')
-    setIsLoading(false)
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const handleEmailSignUp = async (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
+    setSuccess('')
+    
+    if (!name.trim()) return setError('Please enter your full name')
+    if (!isValidEmail) return setError('Please enter a valid email address')
+    if (password.length < 6) return setError('Password must be at least 6 characters')
+    if (password !== confirmPassword) return setError('Passwords do not match')
+
     setIsLoading(true)
-    setError(null)
-    const { error } = await supabase.auth.signUp({ email, password })
-    if (error) setError(error.message)
-    else alert('Check your email for confirmation!')
-    setIsLoading(false)
+    
+    try {
+      const { error } = await supabase.auth.signUp({ 
+        email,
+        password,
+        options: {
+          data: {
+            full_name: name
+          }
+        }
+      })
+      
+      if (error) {
+        setError(error.message)
+      } else {
+        router.push('/dashboard')
+      }
+    } catch (err) {
+      setError('Registration failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
-  const loginWithProvider = async (provider: 'github' | 'google' | 'linkedin_oidc') => {
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
+
+
+  const toggleView = (newView: AuthView) => {
+    setView(newView)
+    setError('')
+    setSuccess('')
   }
 
   return (
@@ -50,90 +104,171 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-8 animate-fade-in relative z-10">
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 mx-auto mb-4">
-            <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+          <div className="inline-flex h-12 w-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 mx-auto mb-4 overflow-hidden">
+            <img src="/icon.svg" alt="Logo" className="h-full w-full object-cover" />
           </div>
-          <h2 className="text-3xl font-black tracking-tight text-white">Welcome Back</h2>
-          <p className="text-slate-400 font-medium">Continue your professional evolution</p>
+          <h2 className="text-3xl font-black tracking-tight text-white">
+            {view === 'login' ? 'Welcome Back' : 'Create Account'}
+          </h2>
+          <p className="text-slate-400 font-medium">
+            {view === 'login' ? 'Continue your professional evolution' : 'Begin your professional journey'}
+          </p>
         </div>
 
-        <div className="glass-card rounded-3xl p-8 border-slate-800 space-y-6">
-          {/* Social Logins */}
-          <div className="grid grid-cols-3 gap-4">
-            <button
-              onClick={() => loginWithProvider('github')}
-              className="flex items-center justify-center p-3 rounded-xl bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all group"
-            >
-              <Github className="h-5 w-5 text-slate-300 group-hover:text-white" />
-            </button>
-            <button
-              onClick={() => loginWithProvider('google')}
-              className="flex items-center justify-center p-3 rounded-xl bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all group"
-            >
-              <Chrome className="h-5 w-5 text-slate-300 group-hover:text-white" />
-            </button>
-            <button
-              onClick={() => loginWithProvider('linkedin_oidc')}
-              className="flex items-center justify-center p-3 rounded-xl bg-slate-800/50 border border-slate-700 hover:bg-slate-700 transition-all group"
-            >
-              <Linkedin className="h-5 w-5 text-slate-300 group-hover:text-white" />
-            </button>
-          </div>
+        <div className="glass-card rounded-3xl p-8 border-slate-800 shadow-2xl">
+          
+          {/* LOGIN VIEW */}
+          {view === 'login' && (
+            <form className="space-y-5" onSubmit={handleSignIn}>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-500" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError('') }}
+                    placeholder="name@company.com"
+                    className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
 
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-slate-800"></span></div>
-            <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#020617] px-2 text-slate-500 font-black tracking-widest">Or continue with</span></div>
-          </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Lock className="h-5 w-5 text-slate-500" />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setError('') }}
+                    placeholder="••••••••"
+                    className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
 
-          {/* Email Login */}
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className="w-full bg-slate-800/30 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full bg-slate-800/30 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
-              />
-            </div>
+              {error && (
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-bold animate-pulse bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
+                  <AlertCircle size={14} className="shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
 
-            {error && <p className="text-rose-500 text-xs font-bold animate-pulse">{error}</p>}
-
-            <div className="grid grid-cols-2 gap-4 pt-2">
               <button
-                onClick={handleEmailLogin}
+                type="submit"
                 disabled={isLoading}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 disabled:opacity-50"
+                className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign In
+                {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Log In'}
               </button>
+
+              <div className="text-center pt-2">
+                <p className="text-slate-400 text-sm">
+                  Don't have an account?{' '}
+                  <button type="button" onClick={() => toggleView('signup')} className="text-indigo-400 font-bold hover:underline">Sign up</button>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* SIGNUP VIEW */}
+          {view === 'signup' && (
+            <form className="space-y-5" onSubmit={handleSignUp}>
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Full Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <User className="h-5 w-5 text-slate-500" />
+                  </div>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); setError('') }}
+                    placeholder="John Doe"
+                    className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Email Address</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="h-5 w-5 text-slate-500" />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError('') }}
+                    placeholder="name@company.com"
+                    className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-slate-500" />
+                    </div>
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => { setPassword(e.target.value); setError('') }}
+                      placeholder="••••••••"
+                      className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Confirm</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <Lock className="h-5 w-5 text-slate-500" />
+                    </div>
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => { setConfirmPassword(e.target.value); setError('') }}
+                      placeholder="••••••••"
+                      className="w-full bg-slate-800/30 border border-slate-700 rounded-xl pl-11 pr-4 py-3 text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {error && (
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-bold animate-pulse bg-rose-500/10 p-3 rounded-xl border border-rose-500/20">
+                  <AlertCircle size={14} className="shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <button
-                onClick={handleEmailSignUp}
+                type="submit"
                 disabled={isLoading}
-                className="bg-slate-800/50 hover:bg-slate-700 text-white font-bold py-3 rounded-xl border border-slate-700 transition-all active:scale-95 disabled:opacity-50"
+                className="w-full mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Sign Up
+                {isLoading ? <Loader2 size={18} className="animate-spin" /> : 'Create Account'}
               </button>
-            </div>
-          </form>
+
+              <div className="text-center pt-2">
+                <p className="text-slate-400 text-sm">
+                  Already have an account?{' '}
+                  <button type="button" onClick={() => toggleView('login')} className="text-indigo-400 font-bold hover:underline">Log in</button>
+                </p>
+              </div>
+            </form>
+          )}
+
         </div>
-
-        <p className="text-center text-slate-500 text-xs font-medium">
-          By continuing, you agree to our <span className="text-slate-300 underline cursor-pointer">Terms of Service</span> and <span className="text-slate-300 underline cursor-pointer">Privacy Policy</span>.
-        </p>
       </div>
     </div>
   )

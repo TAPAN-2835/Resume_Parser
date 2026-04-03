@@ -15,10 +15,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 left-0 right-0 z-[100] border-b border-white/5 bg-[#020617]/50 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20">
-               <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-               </svg>
+             <div className="h-10 w-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-sky-400 flex items-center justify-center shadow-lg shadow-indigo-500/20 ring-1 ring-white/20 overflow-hidden">
+               <img src="/icon.svg" alt="Logo" className="h-full w-full object-cover" />
              </div>
              <span className="text-xl font-black tracking-tight text-white uppercase">Genesis<span className="text-indigo-400">Insights</span></span>
            </div>
