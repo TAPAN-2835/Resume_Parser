@@ -24,8 +24,8 @@ export default function InsightsPanel({ insights = [], score, skills = [] }: Ins
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Score Breakdown Column (2/5) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="prismatic-border p-8 rounded-[2.5rem] relative overflow-hidden h-full flex flex-col">
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover/panel:opacity-10 transition-opacity">
+          <div className="glass-panel p-8 rounded-[2rem] bg-[#0b1120] border border-slate-800 relative overflow-hidden h-full flex flex-col">
+            <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
               <BarChart3 size={120} strokeWidth={1} />
             </div>
             
@@ -45,13 +45,13 @@ export default function InsightsPanel({ insights = [], score, skills = [] }: Ins
                       {value}/{(section === 'experience' ? 30 : section === 'personalInfo' ? 20 : section === 'skills' ? 20 : 15)}
                     </span>
                   </div>
-                  <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden border border-white/5">
+                  <div className="h-2 w-full bg-slate-800/80 rounded-full overflow-hidden shadow-inner">
                     <div 
-                      className={`h-full transition-all duration-1000 delay-${idx * 200} bg-gradient-to-r ${
-                        section === 'experience' ? 'from-indigo-600 to-indigo-400' :
-                        section === 'skills' ? 'from-sky-600 to-sky-400' :
-                        section === 'projects' ? 'from-emerald-600 to-emerald-400' :
-                        'from-slate-600 to-slate-400'
+                      className={`h-full transition-all duration-1000 ${
+                        section === 'experience' ? 'bg-indigo-500' :
+                        section === 'skills' ? 'bg-sky-500' :
+                        section === 'projects' ? 'bg-emerald-500' :
+                        'bg-slate-500'
                       }`}
                       style={{ width: `${(value / (section === 'experience' ? 30 : section === 'personalInfo' ? 20 : section === 'skills' ? 20 : 15)) * 100}%` }}
                     />

@@ -6,7 +6,6 @@ import InsightsPanel from './insights-panel';
 import SkillsSection from './skills-section';
 import ExperienceTimeline from './experience-timeline';
 import ProjectsSection from './projects-section';
-import RawResumeView from './raw-resume-view';
 import type { ResumeData, Insight, ScoreBreakdown } from '@/types/resume';
 
 interface AnalysisResultProps {
@@ -33,9 +32,6 @@ export default function AnalysisResult({ data, score, insights }: AnalysisResult
 
       <ExperienceTimeline experiences={data.experience} />
 
-      <div className="h-px w-full bg-white/5 my-12" />
-      
-      <RawResumeView rawText={data.rawText || ''} />
     </div>
   );
 }

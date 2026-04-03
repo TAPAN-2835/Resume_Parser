@@ -14,17 +14,16 @@ export default function ProfileCard({ personalInfo, score }: ProfileCardProps) {
   const resumeScore = score.total;
 
   return (
-    <div className="prismatic-border p-8 lg:p-10 rounded-[2.5rem] relative overflow-hidden group shadow-2xl transition-all hover:shadow-indigo-500/10 hover:-translate-y-1">
+    <div className="glass-panel p-8 lg:p-10 rounded-[2.5rem] relative overflow-hidden group border border-slate-800 bg-[#0f172a] shadow-2xl transition-all">
       {/* Background Glow */}
-      <div className="absolute top-0 right-0 -mr-24 -mt-24 h-[400px] w-[400px] bg-indigo-600/10 blur-[100px] rounded-full group-hover:bg-indigo-600/20 transition-all duration-1000 animate-pulse" />
-      <div className="absolute bottom-0 left-0 -ml-24 -mb-24 h-[300px] w-[300px] bg-sky-600/5 blur-[80px] rounded-full" />
+      <div className="absolute top-0 right-0 -mr-24 -mt-24 h-[300px] w-[300px] bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none" />
       
       <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center relative z-10">
         {/* Avatar / Score Circle */}
         <div className="relative shrink-0">
-          <div className="h-40 w-40 rounded-[3rem] bg-gradient-to-br from-indigo-600 via-sky-500 to-emerald-400 p-[2px] shadow-2xl shadow-indigo-500/30 group-hover:scale-105 transition-transform duration-500">
-            <div className="h-full w-full rounded-[2.9rem] bg-[#020617] flex items-center justify-center text-5xl font-black text-white">
-              {initials || <Briefcase size={48} />}
+          <div className="h-32 w-32 md:h-40 md:w-40 rounded-[2.5rem] bg-indigo-500/10 p-1 border border-indigo-500/20 shadow-xl group-hover:scale-105 transition-transform duration-500">
+            <div className="h-full w-full rounded-[2.3rem] bg-[#020617] flex items-center justify-center text-4xl md:text-5xl font-black text-white">
+              {initials || <Briefcase size={40} />}
             </div>
           </div>
           <div className="absolute -bottom-4 -right-4 h-16 w-16 rounded-2xl bg-[#0b1120] border border-white/10 p-1.5 shadow-2xl rotate-3 group-hover:rotate-0 transition-transform">
@@ -42,11 +41,11 @@ export default function ProfileCard({ personalInfo, score }: ProfileCardProps) {
         <div className="flex-1 space-y-6">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-5xl font-black tracking-tighter text-white uppercase leading-none">
-                {personalInfo.firstName} <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-sky-400 to-emerald-400">{personalInfo.lastName}</span>
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase leading-none">
+                {personalInfo.firstName} <span className="text-indigo-400">{personalInfo.lastName}</span>
               </h2>
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] shadow-[0_0_15px_-5px_rgba(99,102,241,0.5)]">
-                <ShieldCheck size={12} />
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">
+                <ShieldCheck size={14} />
                 Verified Expert
               </div>
             </div>
@@ -77,12 +76,12 @@ export default function ProfileCard({ personalInfo, score }: ProfileCardProps) {
 
 function ContactBadge({ icon, text, color }: { icon: React.ReactNode, text: string, color: string }) {
   const colors: any = {
-    indigo: 'text-indigo-400 bg-indigo-500/5 border-indigo-500/10',
-    sky: 'text-sky-400 bg-sky-500/5 border-sky-500/10',
-    emerald: 'text-emerald-400 bg-emerald-500/5 border-emerald-500/10'
+    indigo: 'text-slate-300 bg-slate-800/50 border-slate-700/50 hover:bg-indigo-500/10 hover:border-indigo-500/30 hover:text-indigo-400',
+    sky: 'text-slate-300 bg-slate-800/50 border-slate-700/50 hover:bg-sky-500/10 hover:border-sky-500/30 hover:text-sky-400',
+    emerald: 'text-slate-300 bg-slate-800/50 border-slate-700/50 hover:bg-emerald-500/10 hover:border-emerald-500/30 hover:text-emerald-400'
   };
   return (
-    <div className={`flex items-center gap-2 px-4 py-2 rounded-2xl border backdrop-blur-xl hover:scale-105 transition-all cursor-default ${colors[color]}`}>
+    <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-default ${colors[color]}`}>
       {icon}
       <span className="text-sm font-bold">{text}</span>
     </div>
@@ -95,7 +94,7 @@ function SocialLink({ href, icon }: { href: string, icon: React.ReactNode }) {
       href={href} 
       target="_blank" 
       rel="noopener noreferrer" 
-      className="p-4 rounded-3xl bg-white/5 text-slate-400 hover:bg-indigo-600 hover:text-white hover:-translate-y-1 transition-all border border-white/5 shadow-xl hover:shadow-indigo-500/20"
+      className="p-3.5 rounded-2xl bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-white transition-all border border-slate-700/50"
     >
       {icon}
     </a>

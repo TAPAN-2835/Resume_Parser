@@ -130,9 +130,6 @@ export default function Dashboard() {
           <Link href="/dashboard/history" className="block">
             <NavItem icon={<History size={18} />} label="Resume History" />
           </Link>
-          <Link href="/dashboard/settings" className="block">
-            <NavItem icon={<Settings size={18} />} label="Account Settings" />
-          </Link>
         </nav>
 
         <div className="p-4 border-t border-white/5">

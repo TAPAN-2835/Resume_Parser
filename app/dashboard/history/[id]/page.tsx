@@ -63,9 +63,6 @@ export default function HistoryDetailPage() {
             <Link href="/dashboard/history" className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 uppercase text-xs font-black tracking-widest">
               <HistoryIcon size={18} /> Resume History
             </Link>
-            <Link href="/dashboard/settings" className="flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-400 hover:bg-white/5 hover:text-white transition-all uppercase text-xs font-black tracking-widest">
-              <BarChart3 size={18} /> Settings
-            </Link>
          </nav>
       </aside>
 
