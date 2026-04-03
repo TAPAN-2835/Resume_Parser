@@ -27,7 +27,7 @@ export class ResumeNormalizer {
       experience: this.extractExperience(sections.experience || ''),
       education: this.extractEducation(sections.education || ''),
       skills: this.extractSkills(sections.skills || ''),
-      projects: this.extractProjects(sections.projects || ''),
+      projects: this.extractProjects(sections.projects || '', annotations || []),
       rawText: this.fullText,
       additionalSections: {
         certifications: this.extractList(sections.certifications || ''),
@@ -235,37 +235,90 @@ export class ResumeNormalizer {
   }
 
   /**
-   * PROJECTS: Structured extraction
+   * PROJECTS: Structured extraction with smart link mapping
    */
-  private extractProjects(text: string): Project[] {
+  private extractProjects(text: string, annotations: any[] = []): Project[] {
     if (!text.trim()) return [];
 
+    const {
+      extractUrlsFromText,
+      extractUrlsFromAnnotations,
+      mapLinksToProjects,
+      extractInlineLinks,
+      normalizeUrl,
+      classifyUrl
+    } = require('./link-extractor');
+
+    const lines = text.split('\n').map((l: string) => l.trim()).filter((l: string) => l.length > 0);
+
+    // Collect ALL links: from annotations (highest fidelity) + text regex fallback
+    const annotationLinks = extractUrlsFromAnnotations(annotations);
+    const textLinks = extractUrlsFromText(text);
+
+    // Merge, de-duplicate by URL
+    const allLinks = [...annotationLinks];
+    for (const tl of textLinks) {
+      if (!allLinks.find((al: any) => al.url === tl.url)) allLinks.push(tl);
+    }
+
+    // Run proximity mapper
+    const linkMap = mapLinksToProjects(lines, allLinks);
+    const linkMapByName = new Map(linkMap.map((lm: any) => [lm.name.toLowerCase().slice(0, 30), lm]));
+
     const projects: Project[] = [];
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     let currentProject: Project | null = null;
 
-    lines.forEach((line) => {
-      // New project often starts with a bold-ish name or a link
-      if (line.length < 50 && !line.startsWith('•') && !line.startsWith('-')) {
+    lines.forEach((line: string) => {
+      const isUrl = /https?:\/\//i.test(line) || /^github\.com/i.test(line) || /^www\./i.test(line);
+      const isBullet = line.startsWith('•') || line.startsWith('-') || line.startsWith('*');
+      const isProjectTitle = !isUrl && !isBullet && line.length < 80;
+
+      if (isUrl && currentProject) {
+        // Inline URL line — classify and attach
+        const url = normalizeUrl(line);
+        const type = classifyUrl(url);
+        if (type === 'github' && !currentProject.githubUrl) currentProject.githubUrl = url;
+        else if (type === 'live' && !currentProject.liveUrl) currentProject.liveUrl = url;
+        return;
+      }
+
+      if (isProjectTitle) {
         if (currentProject) projects.push(currentProject);
+
+        // Extract inline links from the title line (e.g. "Name – github.com/xx | live.app")
+        const inlineLinks = extractInlineLinks(line);
+        const cleanName = line
+          .replace(/https?:\/\/[^\s]+/gi, '')
+          .replace(/github\.com\/[^\s]+/gi, '')
+          .replace(/[|–—\u2013\u2014]+/g, '')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+
+        // Look up in proximity map
+        const mapKey = cleanName.toLowerCase().slice(0, 30);
+        const mapped = linkMapByName.get(mapKey) as { githubUrl?: string; liveUrl?: string } | undefined;
 
         currentProject = {
           id: `proj-${projects.length}`,
-          name: line.replace(/^[•\-\*]\s?/, '').trim(),
+          name: cleanName || line,
           description: '',
-          technologies: []
+          technologies: [],
+          githubUrl: inlineLinks.githubUrl || mapped?.githubUrl,
+          liveUrl: inlineLinks.liveUrl || mapped?.liveUrl,
         };
       } else if (currentProject) {
-        if (line.toLowerCase().includes('http')) {
-          currentProject.link = line.match(/https?:\/\/[^\s]+/)?.[0];
-        } else {
+        if (isBullet) {
           currentProject.description += (currentProject.description ? ' ' : '') + line.replace(/^[•\-\*]\s?/, '').trim();
+        } else if (!isUrl) {
+          currentProject.description += (currentProject.description ? ' ' : '') + line;
         }
       }
     });
 
     if (currentProject) projects.push(currentProject);
-    return projects;
+
+    // Post-process: remove projects with no meaningful name
+    return projects.filter(p => p.name && p.name.length > 1);
   }
 
   /**

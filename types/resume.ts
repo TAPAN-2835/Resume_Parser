@@ -66,7 +66,9 @@ export interface Project {
   name: string;
   confidence?: 'high' | 'inferred';
   description?: string;
-  link?: string;
+  link?: string;       // kept for backward compat
+  githubUrl?: string;  // GitHub repo link
+  liveUrl?: string;    // Deployed / live URL
   technologies?: string[];
 }
 
