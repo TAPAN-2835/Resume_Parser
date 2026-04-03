@@ -63,9 +63,16 @@ export function SkillsSection({ skills = [] }: SkillsSectionProps) {
                     key={skill.id}
                     className="group relative flex items-center gap-4 rounded-2xl bg-white/5 border border-white/5 px-5 py-3 transition-all duration-500 hover:border-indigo-500/30 hover:bg-white/10 hover:-translate-y-1 shadow-xl"
                   >
-                    <span className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
-                      {skill.name}
-                    </span>
+                    <div className="flex items-center gap-2">
+                       <span className="text-sm font-bold text-slate-200 group-hover:text-white transition-colors">
+                         {skill.name}
+                       </span>
+                       {skill.confidence === 'inferred' && (
+                         <span className="px-1.5 py-0.5 rounded border border-indigo-400/30 bg-indigo-500/10 text-[8px] font-black uppercase tracking-widest text-indigo-400" title="This skill was inferred by AI from context">
+                           AI Inferred
+                         </span>
+                       )}
+                    </div>
                     
                     {skill.proficiency && (
                       <div className="flex gap-1">

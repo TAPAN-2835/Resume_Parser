@@ -11,7 +11,7 @@ import { exportToJson } from '@/lib/utils/export-service';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, User as UserIcon, LayoutDashboard, History, Settings, Zap } from 'lucide-react';
+import { LogOut, User as UserIcon, LayoutDashboard, History, Settings, Zap, Menu, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import AnalysisResult from '@/components/analysis-result';
 import AnalysisSkeleton from '@/components/analysis-skeleton';
@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const supabase = createClient();
   const router = useRouter();
 
@@ -154,8 +155,20 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col h-screen overflow-y-auto relative">
         {/* Mobile Header */}
         <header className="lg:hidden flex items-center justify-between p-6 border-b border-white/5 sticky top-0 bg-[#020617]/80 backdrop-blur-xl z-50">
-           <span className="text-xl font-black tracking-tight text-white uppercase">Genesis</span>
+           <div className="flex items-center gap-4">
+             <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 rounded-lg bg-white/5 text-white hover:bg-white/10 transition-colors">
+               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+             </button>
+             <span className="text-xl font-black tracking-tight text-white uppercase">Genesis</span>
+           </div>
            <button onClick={handleSignOut} className="p-2 rounded-lg bg-slate-800 text-rose-400"><LogOut size={20} /></button>
+           
+           {isMobileMenuOpen && (
+             <div className="absolute top-full left-0 right-0 bg-[#020617] border-b border-white/5 p-4 flex flex-col gap-2 shadow-2xl animate-fade-in">
+                <Link href="/dashboard" className="px-4 py-3 rounded-xl bg-indigo-500/10 text-indigo-400 font-bold text-sm tracking-widest uppercase border border-indigo-500/20">Analysis Dashboard</Link>
+                <Link href="/dashboard/history" className="px-4 py-3 rounded-xl bg-white/5 text-slate-300 font-bold text-sm tracking-widest uppercase">Resume History</Link>
+             </div>
+           )}
         </header>
 
         <main className="flex-1 p-6 lg:p-12 max-w-6xl w-full mx-auto">

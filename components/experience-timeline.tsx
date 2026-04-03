@@ -61,9 +61,16 @@ export function ExperienceTimeline({ experiences = [] }: ExperienceTimelineProps
               <div className="flex flex-col lg:flex-row justify-between gap-6">
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <h4 className="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors leading-none tracking-tight">
-                      {exp.jobTitle}
-                    </h4>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h4 className="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors leading-none tracking-tight">
+                        {exp.jobTitle}
+                      </h4>
+                      {exp.confidence === 'inferred' && (
+                        <span className="px-2 py-0.5 rounded-lg border border-indigo-400/30 bg-indigo-500/10 text-[9px] font-black uppercase tracking-widest text-indigo-400">
+                          AI Inferred Role
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-3 text-sm font-bold text-sky-400 uppercase tracking-widest">
                       <span>{exp.company}</span>
                       {exp.location && (

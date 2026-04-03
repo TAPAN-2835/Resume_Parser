@@ -22,6 +22,7 @@ export interface Experience {
   id: string;
   jobTitle: string;
   company: string;
+  confidence?: 'high' | 'inferred';
   location?: string;
   startDate?: string;
   endDate?: string;
@@ -34,6 +35,7 @@ export interface Education {
   id: string;
   degree: string;
   institution: string;
+  confidence?: 'high' | 'inferred';
   field?: string;
   graduationDate?: string;
   gpa?: string;
@@ -44,6 +46,7 @@ export interface Skill {
   id: string;
   name: string;
   category: 'technical' | 'soft' | 'language' | 'other' | 'frontend' | 'backend' | 'devops';
+  confidence?: 'high' | 'inferred';
   proficiency?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
   endorsements?: number;
 }
@@ -61,6 +64,7 @@ export interface Insight {
 export interface Project {
   id: string;
   name: string;
+  confidence?: 'high' | 'inferred';
   description?: string;
   link?: string;
   technologies?: string[];
@@ -85,6 +89,10 @@ export interface ResumeData {
   education: Education[];
   skills: Skill[];
   projects: Project[];
+  aiSummary?: string;
+  aiStrengths?: string[];
+  aiWeaknesses?: string[];
+  aiSuggestions?: string[];
   rawText?: string;
   additionalSections?: {
     certifications?: string[];

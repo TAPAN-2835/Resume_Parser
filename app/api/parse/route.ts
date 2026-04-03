@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server';
 import { extractFullData } from '@/lib/parser/pdf-engine';
 import { ResumeNormalizer } from '@/lib/parser/resume-normalizer';
 import { generateSmartInsights, calculateSmartScore } from '@/lib/parser/insight-generator';
-import { generateAiInsights, extractStructuredDataWithAi } from '@/lib/parser/ai-generator';
+import { generateAiInsights, extractStructuredDataWithAi, enhanceResumeData } from '@/lib/parser/ai-generator';
 import { generateFileHash, getCachedScan } from '@/lib/parser/cache-service';
 import { classifyProfile } from '@/lib/parser/classifier';
 import { ParseResult, ResumeData } from '@/types/resume';
@@ -87,14 +87,15 @@ export async function POST(request: Request) {
     const heuristicInsights = generateSmartInsights(structuredData, profile);
     const score = calculateSmartScore(structuredData);
 
-    // 6. Enhanced AI Insights (Gemini)
-    const insights = await generateAiInsights(structuredData, heuristicInsights);
+    // 6. Enhanced AI Insights & Hybrid Merging (Gemini)
+    const enhancedData = await enhanceResumeData(structuredData, text);
+    const insights = await generateAiInsights(enhancedData, heuristicInsights);
 
     // 7. Final Response Construction
     const result: ParseResult = {
       success: true,
       data: {
-        ...structuredData,
+        ...enhancedData,
         id: `res-${Date.now()}`,
         createdAt: new Date(),
         updatedAt: new Date(),
