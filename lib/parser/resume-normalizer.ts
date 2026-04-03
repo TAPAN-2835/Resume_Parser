@@ -218,7 +218,12 @@ export class ResumeNormalizer {
         if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
           currentExp.achievements.push(line.replace(/^[•\-\*]\s?/, '').trim());
         } else if (!currentExp.company || currentExp.company === 'Unknown Company') {
-          currentExp.company = line;
+          // Only assign company if it doesn't look like a tech skills line
+          const isTechSkillsLine = /\b(javascript|typescript|python|java|react|node|docker|aws|html|css|sql|mongodb|express|angular|vue|git|linux|script|shell|bash|kubernetes|azure|gcp|firebase|graphql|rest|api)\b/i.test(line);
+          const hasManyComas = (line.match(/,/g) || []).length >= 2;
+          if (!isTechSkillsLine && !hasManyComas) {
+            currentExp.company = line;
+          }
         } else {
           currentExp.description += (currentExp.description ? '\n' : '') + line;
         }
