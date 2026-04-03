@@ -17,10 +17,7 @@ import AnalysisResult from '@/components/analysis-result';
 import AnalysisSkeleton from '@/components/analysis-skeleton';
 import AtmosphericBackground from '@/components/atmospheric-background';
 
-const ExportReport = dynamic(() => import('@/components/export-report'), { 
-  ssr: false,
-  loading: () => <div className="h-10 w-32 animate-pulse bg-white/5 rounded-2xl" />
-});
+
 
 export default function Dashboard() {
   const [stateMachine, dispatch] = useReducer(stateMachineReducer, undefined, initializeState);
@@ -187,10 +184,7 @@ export default function Dashboard() {
             </div>
              {parseResult && (
                <div className="flex gap-4">
-                 <ExportReport 
-                    elementId="resume-analysis-report" 
-                    fileName={parseResult.metadata?.fileName || 'resume'} 
-                 />
+
                  <button onClick={handleReset} className="bg-indigo-600 hover:bg-indigo-500 px-6 py-3 rounded-2xl text-sm font-bold text-white transition-all shadow-lg shadow-indigo-500/20 active:scale-95">New Scan</button>
                </div>
             )}

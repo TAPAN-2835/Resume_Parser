@@ -53,9 +53,9 @@ export class ResumeNormalizer {
     this.rawLines.forEach(line => {
       let foundMarker = false;
       const cleanLine = line.replace(/^[•\-\*]\s?/, '').trim();
-      
+
       for (const [key, marker] of Object.entries(sectionMarkers)) {
-        if (marker.test(cleanLine) && cleanLine.length < 40) { 
+        if (marker.test(cleanLine) && cleanLine.length < 40) {
           currentSection = key;
           if (!sections[currentSection]) sections[currentSection] = [];
           foundMarker = true;
@@ -80,11 +80,11 @@ export class ResumeNormalizer {
    */
   private extractPersonalInfo(text: string): PersonalInfo {
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    
+
     // Email & Phone
     const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
     const phoneMatch = text.match(/(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-    
+
     // Name: Usually the first non-empty line that isn't a contact info or link
     let nameLine = '';
     for (const line of lines) {
@@ -179,24 +179,35 @@ export class ResumeNormalizer {
    */
   private extractExperience(text: string): Experience[] {
     if (!text.trim()) return [];
-    
+
     const experiences: Experience[] = [];
     const dateRangeRegex = /(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+)?(\d{4})\s*[-–—]\s*(?:Present|(?:(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+)?\d{4})/i;
-    
+
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     let currentExp: any = null;
 
     lines.forEach((line) => {
       const dateMatch = line.match(dateRangeRegex);
-      
+
       // If line has date range, it's likely a new experience or the start of one
       if (dateMatch) {
         if (currentExp) experiences.push(currentExp);
+
+        const rawTitle = line.replace(dateRangeRegex, '').replace(/^[•\-\*]\s?/, '').trim();
+        const commaIndex = rawTitle.indexOf(',');
         
+        let jobTitle = rawTitle;
+        let company = '';
+        
+        if (commaIndex !== -1) {
+          jobTitle = rawTitle.slice(0, commaIndex).trim();
+          company = rawTitle.slice(commaIndex + 1).trim();
+        }
+
         currentExp = {
           id: `exp-${experiences.length}`,
-          jobTitle: line.replace(dateRangeRegex, '').replace(/^[•\-\*]\s?/, '').trim() || 'Software Engineer',
-          company: 'Unknown Company',
+          jobTitle: jobTitle || 'Software Engineer',
+          company: company,
           startDate: dateMatch[0].split(/[-–—]/)[0]?.trim(),
           endDate: dateMatch[0].split(/[-–—]/)[1]?.trim(),
           isCurrent: dateMatch[0].toLowerCase().includes('present'),
@@ -223,7 +234,7 @@ export class ResumeNormalizer {
    */
   private extractProjects(text: string): Project[] {
     if (!text.trim()) return [];
-    
+
     const projects: Project[] = [];
     const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
     let currentProject: Project | null = null;
@@ -232,7 +243,7 @@ export class ResumeNormalizer {
       // New project often starts with a bold-ish name or a link
       if (line.length < 50 && !line.startsWith('•') && !line.startsWith('-')) {
         if (currentProject) projects.push(currentProject);
-        
+
         currentProject = {
           id: `proj-${projects.length}`,
           name: line.replace(/^[•\-\*]\s?/, '').trim(),
@@ -257,7 +268,7 @@ export class ResumeNormalizer {
    */
   private extractEducation(text: string): Education[] {
     if (!text.trim()) return [];
-    
+
     const education: Education[] = [];
     const lines = text.split('\n').filter(l => l.trim().length > 0);
     const degreeRegex = /(Bachelor|Master|PhD|B\.S|M\.S|B\.A|M\.A|Associate|Diploma|Degree)/i;
@@ -282,14 +293,14 @@ export class ResumeNormalizer {
   private extractSkills(text: string): Skill[] {
     // If skills section is empty, scan entire text for keywords
     const textToScan = text.length > 50 ? text : this.fullText;
-    
+
     const frontendKeywords = ['react', 'next.js', 'vue', 'angular', 'svelte', 'tailwind', 'css', 'html', 'javascript', 'typescript', 'flutter', 'dart', 'redux', 'framer motion'];
     const backendKeywords = ['node', 'express', 'python', 'django', 'flask', 'java', 'spring', 'go', 'rust', 'ruby', 'rails', 'php', 'laravel', 'sql', 'postgres', 'mongodb', 'redis', 'graphql', 'nest.js'];
     const devopsKeywords = ['aws', 'azure', 'gcp', 'docker', 'kubernetes', 'jenkins', 'github actions', 'ci/cd', 'terraform', 'ansible', 'linux', 'nginx'];
-    
+
     const foundSkills: Skill[] = [];
     const allKeywords = [...frontendKeywords, ...backendKeywords, ...devopsKeywords];
-    
+
     allKeywords.forEach(keyword => {
       const regex = new RegExp(`\\b${keyword.replace('.', '\\.')}\\b`, 'gi');
       if (regex.test(textToScan)) {
@@ -297,7 +308,7 @@ export class ResumeNormalizer {
         if (frontendKeywords.includes(keyword)) category = 'frontend';
         else if (backendKeywords.includes(keyword)) category = 'backend';
         else if (devopsKeywords.includes(keyword)) category = 'devops';
-        
+
         foundSkills.push({
           id: `skill-${foundSkills.length}`,
           name: keyword.charAt(0).toUpperCase() + keyword.slice(1).replace('.js', '.js'),

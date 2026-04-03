@@ -8,10 +8,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import AnalysisResult from '@/components/analysis-result';
 
-const ExportReport = dynamic(() => import('@/components/export-report'), { 
-  ssr: false,
-  loading: () => <div className="h-10 w-32 animate-pulse bg-white/5 rounded-xl" />
-});
+
 
 export default function HistoryDetailPage() {
   const { id } = useParams();
@@ -95,12 +92,7 @@ export default function HistoryDetailPage() {
               <h1 className="text-3xl font-black text-white">{scan?.file_name}</h1>
             </div>
             
-            <div className="flex items-center gap-3">
-               <button className="hidden sm:flex items-center gap-2 px-6 py-3 rounded-xl bg-white/5 text-slate-300 hover:bg-white/10 transition-all font-black uppercase text-[10px] tracking-widest border border-white/5">
-                  <Share2 size={14} /> Share Report
-               </button>
-               <ExportReport elementId="resume-analysis-report" fileName={scan?.file_name || 'report'} />
-            </div>
+
           </header>
 
           {scan && (

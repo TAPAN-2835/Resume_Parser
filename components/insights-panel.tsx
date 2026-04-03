@@ -121,11 +121,7 @@ export default function InsightsPanel({ insights = [], score, skills = [] }: Ins
                       <p className="text-slate-400 text-[14px] leading-relaxed font-semibold pr-4">
                         {insight.description}
                       </p>
-                      {insight.actionable && (
-                        <div className="pt-2 flex items-center gap-2 text-white text-[11px] font-black uppercase tracking-widest cursor-pointer hover:text-indigo-400 transition-colors">
-                          Improve Profile <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 </div>

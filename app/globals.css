@@ -121,3 +121,41 @@
 .dark ::-webkit-scrollbar-thumb {
   @apply bg-slate-600/20 hover:bg-slate-600/40;
 }
+
+/* Print Optimization for PDF Export */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  
+  /* Hide navigation and UI elements */
+  aside, header {
+    display: none !important;
+  }
+  
+  /* Remove scrollbars and ensure full height */
+  div.overflow-y-auto {
+    overflow: visible !important;
+    height: auto !important;
+  }
+  
+  /* Reset margins for main content */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Force glass panels to print properly */
+  .glass-panel {
+    background: transparent !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Dark mode text resets */
+  * {
+    color: black !important;
+  }
+}

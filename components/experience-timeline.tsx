@@ -72,7 +72,9 @@ export function ExperienceTimeline({ experiences = [] }: ExperienceTimelineProps
                       )}
                     </div>
                     <div className="flex items-center gap-3 text-sm font-bold text-sky-400 uppercase tracking-widest">
-                      <span>{exp.company}</span>
+                      {exp.company && exp.company !== 'Unknown Company' && (
+                        <span>{exp.company}</span>
+                      )}
                       {exp.location && (
                         <>
                           <span className="h-1 w-1 rounded-full bg-slate-700" />

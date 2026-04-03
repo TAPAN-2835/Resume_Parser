@@ -44,10 +44,7 @@ export default function ProfileCard({ personalInfo, score }: ProfileCardProps) {
               <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white uppercase leading-none">
                 {personalInfo.firstName} <span className="text-indigo-400">{personalInfo.lastName}</span>
               </h2>
-              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em]">
-                <ShieldCheck size={14} />
-                Verified Expert
-              </div>
+
             </div>
             {personalInfo.summary && (
               <p className="text-slate-400 font-medium leading-relaxed max-w-2xl text-lg italic">
